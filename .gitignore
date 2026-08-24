@@ -1,0 +1,7 @@
+# Working media: the untouched Instagram originals, every extracted frame, and
+# every screenshot taken while building. ~100MB, all of it regenerable.
+media/*
+!media/build.sh
+!media/manifest.txt
+
+.DS_Store

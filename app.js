@@ -1,0 +1,357 @@
+/* Slick Stars — one file for both pages. No build step, no dependencies. */
+
+// ── SET THIS ────────────────────────────────────────────────
+// The shop's number, in +1XXXXXXXXXX form. Left empty, the booking form
+// copies the request to the clipboard and opens the Instagram DM instead.
+const SHOP_PHONE = "";
+const SHOP_IG = "https://ig.me/m/slickstars_";
+// ────────────────────────────────────────────────────────────
+
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const el = (tag, props) => Object.assign(document.createElement(tag), props);
+
+$("#yr").textContent = new Date().getFullYear();
+
+/* ── nav goes solid once you leave the hero ─────────────── */
+const nav = $("#nav");
+if (nav) {
+  const onScroll = () => (nav.dataset.stuck = String(scrollY > 40));
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+}
+
+/* ── scroll reveal ──────────────────────────────────────── */
+const revealObserver = new IntersectionObserver(
+  (entries, obs) =>
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("is-in");
+      obs.unobserve(e.target);
+    }),
+  { rootMargin: "0px 0px -10% 0px" }
+);
+$$("[data-reveal]").forEach((n) => revealObserver.observe(n));
+
+/* ── star field ─────────────────────────────────────────── */
+/* Mostly ice-white with a few cool and warm ones. A real sky isn't one colour,
+   but nothing here is saturated enough to read as colour — it just stops the
+   field looking printed. */
+const STAR_COLOURS = [["#EDF3FF", 60], ["#FFFFFF", 18], ["#C3D9FF", 13], ["#FFE7C2", 9]];
+const starColour = () => {
+  let r = Math.random() * 100;
+  for (const [hex, weight] of STAR_COLOURS) if ((r -= weight) <= 0) return hex;
+  return STAR_COLOURS[0][0];
+};
+
+const seedSky = (host, n) => {
+  if (!host) return;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const star = el("i");
+    const size = Math.random();
+    star.style.left = `${(Math.random() * 100).toFixed(2)}%`;
+    star.style.top = `${(Math.random() * 100).toFixed(2)}%`;
+    star.style.setProperty("--c", starColour());
+    star.style.setProperty("--s", `${(size * 1.6 + 0.8).toFixed(1)}px`);
+    star.style.setProperty("--o", (0.26 + size * 0.42).toFixed(2)); // bigger ones burn brighter
+    star.style.setProperty("--d", `${(Math.random() * 6).toFixed(2)}s`);
+    star.style.setProperty("--t", `${(3.2 + Math.random() * 4).toFixed(1)}s`);
+    frag.append(star);
+  }
+  host.append(frag);
+};
+
+// one fixed field behind the whole page; the count follows the viewport so a
+// phone doesn't get a desktop's worth of animated nodes
+seedSky($("#pageSky"), Math.round(Math.min(200, Math.max(45, (innerWidth * innerHeight) / 7600))));
+
+/* ── hero video ─────────────────────────────────────────── */
+const heroVideo = $(".hero__video");
+if (heroVideo && !reduced) {
+  // Safari checks these as properties, not only attributes, before it will autoplay
+  heroVideo.muted = true;
+  heroVideo.playsInline = true;
+
+  const roll = () => heroVideo.play().catch(() => {});
+  new IntersectionObserver(([e]) => (e.isIntersecting ? roll() : heroVideo.pause()), { threshold: 0 }).observe(heroVideo);
+  ["loadedmetadata", "canplay"].forEach((e) => heroVideo.addEventListener(e, roll, { once: true }));
+  addEventListener("pageshow", roll);
+  document.addEventListener("visibilitychange", () => document.hidden || roll());
+  // Low Power Mode refuses autoplay whatever the page does — first touch counts as consent
+  ["pointerdown", "touchstart"].forEach((e) => addEventListener(e, roll, { once: true, passive: true }));
+  roll();
+} else if (heroVideo) {
+  heroVideo.removeAttribute("autoplay");
+  heroVideo.load(); // leaves the poster frame up
+}
+
+/* ── the work grid ──────────────────────────────────────── */
+/* [file, title, spec, alt] — every clip is the shop's own, straight off @slickstars_ */
+const WORK = [
+  ["tesla-night", "Tesla", "Starlight roof · ambient lines",
+   "Tesla cabin at night, the whole ceiling filled with cyan and white points and a lit line running behind the seats"],
+  ["cadillac-spectrum", "Cadillac", "Full-spectrum dash and doors",
+   "Cadillac cabin at night with a full-spectrum ambient line across the dash and down the door card, white leather either side"],
+  ["bench-test", "Bench test", "Lit before it goes back in",
+   "A headliner off the car on stands, packed edge to edge with white points, a shooting star crossing the middle"],
+  ["tesla-fiber", "Tesla headliner", "Every strand pulled by hand",
+   "A Tesla headliner face down on a bench with hundreds of loose fiber-optic strands pulled through the back"],
+  ["night-spectrum", "Night scene", "Stars over a spectrum line",
+   "Car interior at night, star ceiling above and a rainbow ambient line running along the windscreen header"],
+  ["kia-ambient", "Kia", "Ambient dash, doors, footwells",
+   "Kia cabin in daylight with a rainbow ambient line running across the dash and around the door cards"],
+  ["panel-lit", "Sunroof headliner", "Points laid around the cutout",
+   "A headliner with a sunroof cutout, off the car and lit up, points spread evenly around the opening"],
+  ["honda-stars", "Honda", "Multicolor roof, sunroof cutout",
+   "Honda cabin with a multicolor star ceiling arcing around the sunroof, dashboard lit red below"],
+  ["back-of-headliner", "Back of the headliner", "Where the fiber actually lives",
+   "The reverse of a headliner in daylight, showing every strand glued down and routed back to a single point"],
+  ["tesla-suede", "Tesla trim", "Headliner and pillars in black suede",
+   "Tesla headliner surround and pillar trims retrimmed in black suede, laid out on the driveway next to the car"],
+  ["daylight-stars", "Daylight", "What it looks like at noon",
+   "A star ceiling seen in daylight through an open garage door, points still clearly lit across the roof"],
+  ["cadillac-ambient", "Cadillac", "One color across every zone",
+   "Cadillac cabin washed green by the ambient lighting, the line running the length of the dash and door"],
+];
+
+const grid = $("#work-grid");
+if (grid) {
+  const lb = $("#lb"), lbVideo = $("#lbVideo"), lbCap = $("#lbCap");
+
+  WORK.forEach(([file, title, spec, alt]) => {
+    const fig = el("figure", { className: "tile" });
+
+    // the still is what the grid reads as; the clip only loads if you ask for it
+    fig.append(
+      el("img", {
+        src: `video/work/${file}.jpg`,
+        width: 720, height: 1280,
+        loading: "lazy", decoding: "async",
+        alt,
+      })
+    );
+
+    const vid = el("video", {
+      src: `video/work/${file}.mp4`,
+      width: 720, height: 1280,
+      muted: true, loop: true, playsInline: true, preload: "none",
+      ariaHidden: "true", tabIndex: -1,
+    });
+    fig.append(vid);
+
+    // hover previews on a pointer; a tap goes straight to the lightbox instead
+    if (!reduced && matchMedia("(hover:hover)").matches) {
+      const start = () => {
+        fig.dataset.playing = "true";
+        vid.play().catch(() => {});
+      };
+      const stop = () => {
+        fig.dataset.playing = "false";
+        vid.pause();
+        vid.load(); // back to a clean poster rather than a frozen frame
+      };
+      fig.addEventListener("pointerenter", start);
+      fig.addEventListener("pointerleave", stop);
+      fig.addEventListener("focusin", start);
+      fig.addEventListener("focusout", stop);
+    }
+
+    fig.insertAdjacentHTML(
+      "beforeend",
+      `<span class="tile__chip" aria-hidden="true">Watch</span>
+       <figcaption class="tile__cap"><b></b><span></span></figcaption>`
+    );
+    $("b", fig).textContent = title;
+    $(".tile__cap span", fig).textContent = spec;
+
+    const btn = el("button", {
+      type: "button",
+      className: "tile__btn",
+      textContent: `Watch ${title} — ${spec}`,
+    });
+    btn.addEventListener("click", () => {
+      lbVideo.src = `video/work/${file}.mp4`;
+      lbVideo.poster = `video/work/${file}.jpg`;
+      lbVideo.setAttribute("aria-label", alt);
+      lbCap.textContent = `${title} — ${spec}`;
+      lb.showModal();
+      lbVideo.play().catch(() => {});
+    });
+    fig.append(btn);
+
+    grid.append(fig);
+  });
+
+  // closing has to stop the download too, or the clip keeps buffering behind the page
+  const shut = () => {
+    lbVideo.pause();
+    lbVideo.removeAttribute("src");
+    lbVideo.load();
+    if (lb.open) lb.close();
+  };
+  $("#lbClose").addEventListener("click", shut);
+  lb.addEventListener("close", shut);
+  // click outside the video, on the dialog's own backdrop area
+  lb.addEventListener("click", (e) => {
+    if (e.target === lb || e.target.classList.contains("lb__in")) shut();
+  });
+}
+
+/* ── booking quiz: one step at a time, then the whole thing ── */
+const form = $("#bookForm");
+if (form) {
+  const val = (id) => $("#" + id).value.trim();
+  const checked = (name) => $$(`input[name=${name}]:checked`).map((c) => c.value);
+  const one = (name, fallback = "—") => checked(name)[0] || fallback;
+
+  const vehicle = () => [val("year"), val("make"), val("model")].filter(Boolean).join(" ");
+  const when = () => {
+    const d = val("date");
+    const day = d ? new Date(d + "T00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
+    return [day ? `From ${day}` : "No date picked", one("flex", "")].filter(Boolean).join(" · ");
+  };
+
+  // one row per answer: [step it lives on, label, value]. Drives the review
+  // screen and the message that gets sent, so the two can't drift apart.
+  const details = () => [
+    [0, "Install", checked("service").join(", ") || "Not decided yet"],
+    [1, "Vehicle", vehicle() || "—"],
+    [1, "Roof", `${one("roof")}, headliner ${one("liner").toLowerCase()}`],
+    [2, "Ceiling", `${one("density")} · ${one("color")}`],
+    [2, "Extras", checked("extra").join(", ") || "None"],
+    [3, "Timing", when()],
+    [4, "Name", val("name") || "—"],
+    [4, "Contact", [val("phone"), val("email"), val("ig")].filter(Boolean).join(" / ") || "—"],
+    [4, "Found us via", one("found", "—")],
+    [4, "Notes", val("notes") || "None"],
+  ];
+
+  const steps = $$(".step", form);
+  const last = steps.length - 1;
+  const fill = $("#wizFill"), count = $("#wizCount"), out = $("#reviewOut");
+  const back = $("#wizBack"), next = $("#wizNext"), send = $("#wizSend"), status = $("#status");
+  let cur = 0;
+  let toReview = false; // set when someone jumps back from the review to fix one answer
+
+  const fail = (msg, id) => {
+    status.dataset.err = "true";
+    status.textContent = msg;
+    if (id) $("#" + id).focus();
+  };
+
+  // what's still missing on a given step, if anything
+  const problem = (i) => {
+    if (i === 1 && !vehicle()) return ["Add the year, make and model of the car.", "year"];
+    if (i === 4 && !val("name")) return ["Add your name so we know who's booking.", "name"];
+    if (i === 4 && !val("phone") && !val("ig")) return ["Leave a number or an Instagram handle — that's how the quote comes back.", "phone"];
+    return null;
+  };
+
+  const review = () => {
+    out.textContent = "";
+    for (const [i, label, value] of details()) {
+      const row = el("div", { className: "review__row" });
+      const edit = el("button", { type: "button", className: "review__edit", textContent: "Edit" });
+      edit.addEventListener("click", () => {
+        toReview = true;
+        show(i);
+      });
+      row.append(el("dt", { textContent: label }), el("dd", { textContent: value }), edit);
+      out.append(row);
+    }
+  };
+
+  function show(i, quiet) {
+    cur = Math.min(Math.max(i, 0), last);
+    steps.forEach((s, k) => s.classList.toggle("is-on", k === cur));
+    if (cur === last) review();
+    fill.style.width = `${((cur + 1) / steps.length) * 100}%`;
+    count.textContent = `Step ${cur + 1} of ${steps.length}`;
+    back.hidden = cur === 0;
+    next.hidden = cur === last;
+    next.textContent = toReview ? "Back to review" : "Next";
+    send.hidden = cur !== last;
+    status.textContent = "";
+    if (quiet) return;
+    steps[cur].querySelector("h2").focus({ preventScroll: true });
+    $("#wiz").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  }
+
+  const advance = () => {
+    const p = problem(cur);
+    if (p) return fail(...p);
+    const jump = toReview;
+    toReview = false;
+    show(jump ? last : cur + 1);
+  };
+
+  steps.forEach((s) => (s.querySelector("h2").tabIndex = -1));
+  form.classList.add("is-quiz");
+  next.addEventListener("click", advance);
+  back.addEventListener("click", () => {
+    toReview = false;
+    show(cur - 1);
+  });
+  show(0, true);
+
+  // can't drop a car off in the past
+  $("#date").min = new Date().toISOString().slice(0, 10);
+
+  // sent — swap the form for the ceiling coming on
+  const lightsOn = () => {
+    const done = $("#done");
+    form.hidden = true;
+    $(".bookhead").hidden = true;
+    done.hidden = false;
+    seedSky($("#doneSky"), 120);
+    const h = done.querySelector("h2");
+    h.tabIndex = -1;
+    h.focus({ preventScroll: true });
+    scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    if (cur !== last) return advance(); // enter on an earlier step just moves on
+    if (val("website")) return; // honeypot
+
+    for (let i = 0; i <= last; i++) {
+      const p = problem(i);
+      if (p) {
+        show(i);
+        return fail(...p);
+      }
+    }
+    status.dataset.err = "false";
+
+    const msg = [
+      `Booking request — ${val("name")}`,
+      ...details().map(([, k, v]) => `${k}: ${v}`),
+    ].join("\n");
+
+    // Slick Stars has no published number or email yet, so the request is handed
+    // to the customer's own messages or to the Instagram DM. Fill SHOP_PHONE in
+    // and the text route takes over — it arrives from their real number.
+    send.classList.add("is-sending");
+
+    if (SHOP_PHONE) {
+      const sep = /iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?";
+      location.href = `sms:${SHOP_PHONE}${sep}body=${encodeURIComponent(msg)}`;
+      send.classList.remove("is-sending");
+      status.textContent = "Opening your messages — hit send to finish.";
+      return lightsOn();
+    }
+
+    try {
+      await navigator.clipboard.writeText(msg);
+      status.textContent = "Copied — paste it into the DM that just opened.";
+    } catch {
+      status.textContent = "Opening Instagram — send us your details in the DM.";
+    }
+    open(SHOP_IG, "_blank", "noopener");
+    send.classList.remove("is-sending");
+    lightsOn();
+  });
+}
