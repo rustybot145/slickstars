@@ -62,14 +62,20 @@ Black, chrome and white. No accent color anywhere in the interface — every col
 comes out of the shop's own footage, which is the point: a violet cabin and a cyan star ceiling
 read far louder against a page that isn't competing with them.
 
-Display face is **Saira**, variable, run at 112% on its width axis and weight 200–300. Saira was
-chosen against the logo, not in the abstract: squarish counters, flat terminals, the same
-technical skeleton as the badge. The hero headline is set in its **italic** so the slant answers
-the logo's; everything else stays upright so the page stays calm. **Instrument Sans** carries body
-copy, labels and every control. `font-stretch` sits on its own line in every display rule because
-the `font:` shorthand resets it.
+Display face is **Bodoni Moda** — a Didone, and the point of it is the contrast: hairlines next
+to thick stems, which is what a star ceiling does. Four sans-serifs got tried and dropped before
+this; the fix was changing category, not family. Its optical-size axis runs on `auto`, so the
+browser sets fine hairlines at hero size and sturdier strokes at 17px on its own — the small
+display items just step up a weight (500) so nothing thins out to nothing on black.
 
-The format runs: hero bottom-left over a star ceiling → three portrait install cards → the process as a hairline-ruled editorial list, not boxes → twelve builds in a
+**Instrument Sans** carries body copy, labels and every control.
+
+The hero borrows its text layout from the Vivid Customs build: one left-aligned column, centered
+in the viewport, with even 1.5rem gaps — locator, two-line headline with the second line italic,
+one paragraph, two buttons (solid and ghost). Nothing is pinned to a corner and nothing runs in a
+second column.
+
+The rest of the format runs: hero over a star ceiling → three portrait install cards → the process as a hairline-ruled editorial list, not boxes → twelve builds in a
 four-column grid over a star field → questions beside their heading → closer.
 
 Three of the four section headings are centered with a small numbered label above them.
