@@ -5,3 +5,7 @@ media/*
 !media/manifest.txt
 
 .DS_Store
+
+# reference sheet for picking type, not part of the site
+FONT-OPTIONS.png
+preview.html

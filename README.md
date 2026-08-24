@@ -62,10 +62,15 @@ Black, chrome and white. No accent color anywhere in the interface — every col
 comes out of the shop's own footage, which is the point: a violet cabin and a cyan star ceiling
 read far louder against a page that isn't competing with them.
 
-Display face is **Host Grotesk**, at 600–700. The weight is the point: five faces got tried and
-dropped before this and every one of them was set light (200–400), so the thing that had never
-been tested wasn't another family, it was attitude. A heavy grotesk sits with a bold chrome badge
-in a way a hairline never did. It carries a true italic, which the second line of the hero needs.
+Display face is **DM Serif Display**, picked by Ben off a rendered sheet of ten after six other
+faces were tried and dropped.
+
+It ships one weight and an italic and nothing else, which shapes how it's used: hierarchy comes
+from size and case, never from weight. The hero's second line takes the real italic — that's the
+device the layout borrows from Vivid. The smallest display text is set a step larger than the
+sans would need (process step titles at 21px, FAQ questions at 20px) because there's no heavier
+cut to lean on; the strokes are sturdy enough on black that nothing disappears, but they want the
+size.
 
 **Instrument Sans** carries body copy, labels and every control.
 
