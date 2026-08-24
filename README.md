@@ -62,13 +62,14 @@ Black, chrome and white. No accent color anywhere in the interface — every col
 comes out of the shop's own footage, which is the point: a violet cabin and a cyan star ceiling
 read far louder against a page that isn't competing with them.
 
-Display face is **Archivo**, variable, run at 116% on its width axis and weight 200–300 — expanded
-and light, which echoes the width of the logo without competing with it. **Instrument Sans**
-carries body copy, labels and every control. `font-stretch` sits on its own line in every display
-rule because the `font:` shorthand resets it.
+Display face is **Saira**, variable, run at 112% on its width axis and weight 200–300. Saira was
+chosen against the logo, not in the abstract: squarish counters, flat terminals, the same
+technical skeleton as the badge. The hero headline is set in its **italic** so the slant answers
+the logo's; everything else stays upright so the page stays calm. **Instrument Sans** carries body
+copy, labels and every control. `font-stretch` sits on its own line in every display rule because
+the `font:` shorthand resets it.
 
-The format runs: hero bottom-left over a star ceiling → a three-cell meta bar → three portrait
-install cards → the process as a hairline-ruled editorial list, not boxes → twelve builds in a
+The format runs: hero bottom-left over a star ceiling → three portrait install cards → the process as a hairline-ruled editorial list, not boxes → twelve builds in a
 four-column grid over a star field → questions beside their heading → closer.
 
 Three of the four section headings are centered with a small numbered label above them.
