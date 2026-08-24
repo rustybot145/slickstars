@@ -62,11 +62,10 @@ Black, chrome and white. No accent color anywhere in the interface — every col
 comes out of the shop's own footage, which is the point: a violet cabin and a cyan star ceiling
 read far louder against a page that isn't competing with them.
 
-Display face is **Bodoni Moda** — a Didone, and the point of it is the contrast: hairlines next
-to thick stems, which is what a star ceiling does. Four sans-serifs got tried and dropped before
-this; the fix was changing category, not family. Its optical-size axis runs on `auto`, so the
-browser sets fine hairlines at hero size and sturdier strokes at 17px on its own — the small
-display items just step up a weight (500) so nothing thins out to nothing on black.
+Display face is **Host Grotesk**, at 600–700. The weight is the point: five faces got tried and
+dropped before this and every one of them was set light (200–400), so the thing that had never
+been tested wasn't another family, it was attitude. A heavy grotesk sits with a bold chrome badge
+in a way a hairline never did. It carries a true italic, which the second line of the hero needs.
 
 **Instrument Sans** carries body copy, labels and every control.
 
