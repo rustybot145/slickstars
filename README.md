@@ -36,17 +36,32 @@ Poster frames were picked by hand, one clip at a time — a starlight reel spend
 runtime on someone's face or a garage shelf, and the auto-picked frame was wrong more often
 than it was right.
 
-## Where booking requests go
+## Booking: real slots, no double bookings
 
-Straight into GoHighLevel. `api/book.js` does three things on submit:
+The timing step doesn't ask for a date any more — it shows the days and times that are genuinely
+open on the GoHighLevel calendar, and holds the one they pick.
 
-1. **Upserts the contact** — name, phone (normalised to E.164, which GHL silently requires),
-   email, tagged `website-booking`, source `Website booking form`. Year, make and model go into
-   the custom fields that already existed in the account.
-2. **Creates an opportunity** in *New Lead 💫* on the Main Pipeline, named
-   `Ben Perez — 2023 Tesla Model Y` so the card is readable without opening it.
-3. **Attaches a note** with the whole answer sheet, grouped: the car, what they want, timing,
-   how to reach them, then their own words verbatim.
+| Route | |
+|---|---|
+| `api/slots.js` | Reads free slots off the calendar. Uncached — a slot taken thirty seconds ago is gone from the next response. |
+| `api/book.js` | Upserts the contact, books the slot, creates the opportunity, attaches the note. |
+| `api/_ghl.js` | Shared token lookup, IDs and fetch wrapper. Files starting with `_` aren't routes on Vercel. |
+
+**How the double-booking guard works:** the appointment is created with
+`ignoreFreeSlotValidation: false`, so the calendar itself refuses a slot that's already taken.
+Two people on the page at once can both *see* 1pm; only the first to submit gets it. The second
+gets the booking saved with a warning on the note rather than an error — a lead is never lost to
+a race.
+
+Appointments are created with status `new`, not `confirmed`. The site promises a price before
+anything is final, so he still confirms each one himself.
+
+Times are read out of the ISO string rather than through `Date()`, so a visitor in another
+timezone still sees the shop's clock — the appointment is a physical one.
+
+**If the calendar can't be read**, the step falls back to the old free-text date box, and if
+`/api/book` fails the whole request falls back to the text/Instagram handoff. Neither failure
+loses a booking.
 
 The one environment variable to set in Vercel:
 
@@ -54,25 +69,26 @@ The one environment variable to set in Vercel:
 |---|---|
 | `GHL_api` | **required** — a Private Integration Token created *inside the Slick Stars sub-account* |
 
-Location, pipeline and stage IDs are baked into `api/book.js` with `GHL_LOCATION_ID`,
-`GHL_PIPELINE_ID` and `GHL_STAGE_ID` as overrides. They aren't secrets — without the token they
-do nothing — but they'd need changing if the account is ever rebuilt.
+`GHL_LOCATION_ID`, `GHL_PIPELINE_ID`, `GHL_STAGE_ID`, `GHL_CALENDAR_ID` and `GHL_TIMEZONE`
+override the baked-in IDs if the account is ever rebuilt. They aren't secrets — without the
+token they do nothing.
 
-The key lookup takes `GHL_api` first and then falls back to any ghl-ish variable holding
-something shaped like a real token, so a rename doesn't silently break the form.
+### Testing it locally
 
-**If the endpoint fails for any reason the request is never lost** — it falls back to the old
-handoff: a text from the customer's own messages app if `SHOP_PHONE` is set, otherwise the
-request is copied to the clipboard and the Instagram DM opens. That's also what happens on
-`python3 -m http.server`, which has no `/api` route.
+`python3 -m http.server` can't run the API routes. Use:
 
-`app.js` still starts with:
-
-```js
-const SHOP_PHONE = "";
+```
+GHL_api=<token> node media/dev-server.js
 ```
 
-Filling it in only improves the fallback; the GHL post is the primary path either way.
+Same port, serves the static site and `/api/*` against the real account.
+
+### The calendar itself
+
+It currently points at **"John Doe's Personal Calendar"** — the placeholder GHL auto-created —
+with 30-minute slots from 11am. The code reads whatever the calendar says, so renaming it,
+setting a full-day duration and putting in his real hours needs **no code change at all**. Set
+`GHL_CALENDAR_ID` if a different calendar is built instead.
 
 ## Design
 

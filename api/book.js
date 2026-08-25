@@ -1,37 +1,13 @@
 /* Booking request -> GoHighLevel. Vercel serverless, no dependencies.
 
-   Creates (or updates) the contact, drops an opportunity into "New Lead 💫"
-   on the Main Pipeline, and attaches a formatted note with everything they
-   filled in. Needs the GHL private integration token in the environment.
+   Creates (or updates) the contact, books the chosen slot on the calendar,
+   drops an opportunity into "New Lead 💫" on the Main Pipeline, and attaches a
+   formatted note with everything they filled in. Needs the GHL private
+   integration token in the environment as GHL_api. */
 
-   These IDs aren't secrets — without the token they do nothing — but every
-   one can be overridden from the environment if the account is ever rebuilt. */
-
-const LOCATION_ID = process.env.GHL_LOCATION_ID || "3EJu8Av87OgDsOXd6Ufv";
-const PIPELINE_ID = process.env.GHL_PIPELINE_ID || "lh287U4Pkzg7HeZYiQHr";
-const STAGE_NEW_LEAD = process.env.GHL_STAGE_ID || "e8aa91b9-a89c-42b7-8e93-41f5562d56fa";
-
-// custom fields that already exist in the account
-const FIELD = { year: "GZWzgVoxPmrNmAOnrn1L", make: "rUQ2Dk81tXQ1QoRmEvmY", model: "aRbtMCJGB0Xi3KtyEQw6" };
-
-const API = "https://services.leadconnectorhq.com";
-const HEADERS = (key) => ({
-  authorization: `Bearer ${key}`,
-  "content-type": "application/json",
-  accept: "application/json",
-  version: "2021-07-28",
-});
-
-/* Vercel env names are case-sensitive and this one got named GHL_api, so take
-   that first and then fall back to any ghl-ish name holding a real token
-   rather than fail silently on a rename. */
-const apiKey = () =>
-  process.env.GHL_api ||
-  process.env.GHL_API ||
-  process.env.GHL_API_KEY ||
-  Object.entries(process.env).find(
-    ([k, v]) => /ghl|highlevel|leadconnector/i.test(k) && /^(pit-|ey)[\w.\-]{20,}$/.test(v || "")
-  )?.[1];
+const {
+  LOCATION_ID, PIPELINE_ID, STAGE_NEW_LEAD, CALENDAR_ID, TZ, FIELD, apiKey, call,
+} = require("./_ghl.js");
 
 // US numbers to E.164 — GHL silently drops anything else
 const toE164 = (raw) => {
@@ -84,22 +60,13 @@ function buildNote(rows, when) {
   return out.join("\n");
 }
 
-async function ghl(path, key, body) {
-  const r = await fetch(API + path, { method: "POST", headers: HEADERS(key), body: JSON.stringify(body) });
-  const text = await r.text();
-  let json = null;
-  try { json = JSON.parse(text); } catch {}
-  if (!r.ok) throw Object.assign(new Error(`${path} ${r.status}`), { status: r.status, detail: text.slice(0, 300) });
-  return json || {};
-}
-
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
   const key = apiKey();
   if (!key) return res.status(500).json({ error: "No GoHighLevel token in the environment (set GHL_api)." });
 
-  const { name = "", phone = "", email = "", ig = "", website = "", vehicle = {}, rows = [] } = req.body || {};
+  const { name = "", phone = "", email = "", ig = "", website = "", vehicle = {}, rows = [], slot = "" } = req.body || {};
   if (website) return res.status(200).json({ ok: true }); // honeypot: bots fill it, people can't see it
   if (!String(name).trim()) return res.status(400).json({ error: "Name is required." });
   if (!Array.isArray(rows) || !rows.length) return res.status(400).json({ error: "Nothing to send." });
@@ -115,7 +82,7 @@ module.exports = async function handler(req, res) {
   ].filter(Boolean);
 
   try {
-    const up = await ghl("/contacts/upsert", key, {
+    const up = await call("/contacts/upsert", key, { method: "POST", body: {
       locationId: LOCATION_ID,
       firstName: first,
       lastName: rest.join(" "),
@@ -125,21 +92,47 @@ module.exports = async function handler(req, res) {
       source: "Website booking form",
       tags: ["website-booking", "new lead"],
       ...(customFields.length ? { customFields } : {}),
-    });
+    }});
 
     const contactId = up?.contact?.id || up?.id;
     if (!contactId) throw new Error("No contact id came back from GHL");
 
     // the card has to be readable at a glance in the pipeline
     const car = [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ").trim();
-    await ghl("/opportunities/", key, {
+    await call("/opportunities/", key, { method: "POST", body: {
       locationId: LOCATION_ID,
       pipelineId: PIPELINE_ID,
       pipelineStageId: STAGE_NEW_LEAD,
       name: car ? `${full} — ${car}`.slice(0, 100) : full,
       status: "open",
       contactId,
-    });
+    }});
+
+    /* Book the slot they picked. This is what stops two people taking the same
+       morning — the calendar itself refuses the second one. Status stays "new"
+       rather than confirmed, because the site promises a price before anything
+       is final, so he still gets to confirm it himself. */
+    let booked = false;
+    if (/^\d{4}-\d{2}-\d{2}T[\d:]+([+-]\d{2}:\d{2}|Z)$/.test(slot)) {
+      try {
+        await call("/calendars/events/appointments", key, {
+          method: "POST",
+          body: {
+            calendarId: CALENDAR_ID,
+            locationId: LOCATION_ID,
+            contactId,
+            startTime: slot,
+            title: car ? `${full} — ${car}`.slice(0, 100) : `${full} — install`,
+            appointmentStatus: "new",
+            ignoreFreeSlotValidation: false,
+          },
+        });
+        booked = true;
+      } catch (e) {
+        // the slot went in the seconds since they loaded it, or the calendar moved
+        console.error("appointment failed", e.message, e.detail || "");
+      }
+    }
 
     // best effort: a missing note is worth far less than a lost lead
     const when = new Date().toLocaleString("en-US", {
@@ -147,12 +140,13 @@ module.exports = async function handler(req, res) {
       hour: "numeric", minute: "2-digit",
     });
     try {
-      await ghl(`/contacts/${contactId}/notes`, key, { body: buildNote(rows, when).slice(0, 5000) });
+      const note = buildNote(rows, when) + (slot && !booked ? "\n\n⚠ They picked a time but the slot could not be held — call to rebook." : "");
+      await call(`/contacts/${contactId}/notes`, key, { method: "POST", body: { body: note.slice(0, 5000) } });
     } catch (e) {
       console.error("note failed", e.message, e.detail || "");
     }
 
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, booked });
   } catch (e) {
     console.error("ghl", e.message, e.detail || "");
     return res.status(502).json({ error: "GoHighLevel rejected it." });

@@ -208,7 +208,7 @@ if (form) {
 
   const vehicle = () => [val("year"), val("make"), val("model")].filter(Boolean).join(" ");
   const when = () => {
-    const d = val("date");
+    const d = dateFallback && !dateFallback.hidden ? val("date") : "";
     const day = d ? new Date(d + "T00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "";
     return [day ? `From ${day}` : "No date picked", one("flex", "")].filter(Boolean).join(" · ");
   };
@@ -221,7 +221,7 @@ if (form) {
     [1, "Roof", `${one("roof")}, headliner ${one("liner").toLowerCase()}`],
     [2, "Ceiling", `${one("density")} · ${one("color")}`],
     [2, "Extras", checked("extra").join(", ") || "None"],
-    [3, "Timing", when()],
+    [3, "Timing", chosenSlot ? slotLabel() : when()],
     [4, "Name", val("name") || "—"],
     [4, "Contact", [val("phone"), val("email"), val("ig")].filter(Boolean).join(" / ") || "—"],
     [4, "Found us via", one("found", "—")],
@@ -296,8 +296,93 @@ if (form) {
   });
   show(0, true);
 
-  // can't drop a car off in the past
-  $("#date").min = new Date().toISOString().slice(0, 10);
+
+  /* ── slot picker ───────────────────────────────────────────
+     Days and times come straight off the GHL calendar, so a customer can only
+     pick something that's genuinely open. Times are read out of the ISO string
+     rather than through Date(), because a visitor in another timezone should
+     still see the shop's clock — the appointment is a physical one. */
+  let chosenSlot = "";
+  const slotDays = $("#slotDays"), slotTimes = $("#slotTimes"),
+        slotTimesWrap = $("#slotTimesWrap"), slotHint = $("#slotHint"),
+        slotField = $("#slotField"), dateFallback = $("#dateFallback");
+
+  const clock = (iso) => {
+    const [h, m] = iso.slice(11, 16).split(":").map(Number);
+    const ampm = h < 12 ? "AM" : "PM";
+    return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+  };
+  const dayParts = (ymd) => {
+    const [y, m, d] = ymd.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    return {
+      wd: dt.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" }),
+      d: String(d),
+      mo: dt.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }),
+      long: dt.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" }),
+    };
+  };
+
+  const slotLabel = () => {
+    if (!chosenSlot) return "";
+    const p = dayParts(chosenSlot.slice(0, 10));
+    return `${p.long} at ${clock(chosenSlot)}`;
+  };
+
+  const useFallback = (why) => {
+    slotField.hidden = true;
+    dateFallback.hidden = false;
+    $("#date").min = new Date().toISOString().slice(0, 10);
+    console.warn("slot picker unavailable:", why);
+  };
+
+  const paintTimes = (day) => {
+    slotTimes.textContent = "";
+    day.slots.forEach((iso) => {
+      const b = el("button", { type: "button", className: "slot slot--time", textContent: clock(iso) });
+      b.setAttribute("aria-pressed", String(iso === chosenSlot));
+      b.addEventListener("click", () => {
+        chosenSlot = iso;
+        $$(".slot--time", slotTimes).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        slotHint.textContent = `Holding ${slotLabel()}`;
+      });
+      slotTimes.append(b);
+    });
+    slotTimesWrap.hidden = false;
+  };
+
+  const loadSlots = async () => {
+    let data;
+    try {
+      const r = await fetch("/api/slots");
+      if (!r.ok) throw new Error(r.status);
+      data = await r.json();
+    } catch (e) {
+      return useFallback(e.message);
+    }
+    if (!data.days?.length) return useFallback("no open days");
+
+    slotDays.textContent = "";
+    data.days.forEach((day) => {
+      const p = dayParts(day.date);
+      const b = el("button", { type: "button", className: "slot slot--day" });
+      b.setAttribute("aria-pressed", "false");
+      b.setAttribute("aria-label", `${p.long}, ${day.slots.length} times open`);
+      b.insertAdjacentHTML("beforeend", "<b></b><span></span><i></i>");
+      $("b", b).textContent = p.wd;
+      $("span", b).textContent = p.d;
+      $("i", b).textContent = p.mo;
+      b.addEventListener("click", () => {
+        chosenSlot = "";
+        slotHint.textContent = "";
+        $$(".slot--day", slotDays).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        paintTimes(day);
+      });
+      slotDays.append(b);
+    });
+  };
+  loadSlots();
+
 
   // sent — swap the form for the ceiling coming on
   const lightsOn = () => {
@@ -350,6 +435,7 @@ if (form) {
           ig: val("ig"),
           website: val("website"),
           vehicle: { year: val("year"), make: val("make"), model: val("model") },
+          slot: chosenSlot,
           rows: details().map(([, k, v]) => [k, v]),
         }),
       });

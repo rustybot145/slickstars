@@ -3,6 +3,7 @@
 media/*
 !media/build.sh
 !media/manifest.txt
+!media/dev-server.js
 
 .DS_Store
 

@@ -135,11 +135,26 @@
     <!-- 04 ─ timing -->
     <section class="step">
       <h2>When can we have it?</h2>
-      <p class="step__sub">Most headliners are a day. Add ambient or a retrim and it's usually two.</p>
+      <p class="step__sub">These are the days actually open on the calendar &mdash; pick one and we'll hold it for you.</p>
 
-      <div class="field" style="max-width:280px">
+      <div class="field" id="slotField">
+        <label>Pick a day</label>
+        <div class="slots" id="slotDays" role="group" aria-label="Available days">
+          <p class="slots__msg">Checking the calendar&hellip;</p>
+        </div>
+
+        <div id="slotTimesWrap" hidden>
+          <label style="margin-top:28px">Pick a time</label>
+          <div class="slots slots--times" id="slotTimes" role="group" aria-label="Available times"></div>
+        </div>
+
+        <p class="hint" id="slotHint"></p>
+      </div>
+
+      <div class="field" id="dateFallback" hidden style="max-width:280px">
         <label for="date">Earliest you can drop it</label>
         <input type="date" id="date">
+        <p class="hint">We'll confirm an exact time when we come back to you.</p>
       </div>
 
       <fieldset class="field">
