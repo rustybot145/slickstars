@@ -23,6 +23,11 @@ The install cards show an empty `Photo` frame, not an image — waiting on the s
 photo each for starlight headliner, ambient lighting and suede retrim. The README has the
 two-line swap. Reel stills are sitting in `images/services/` as a fallback.
 
+## The form now posts into GoHighLevel
+`api/book.js` creates the contact and drops an opportunity into *New Lead 💫*. It needs `GHL_api`
+set in Vercel or it falls back to the Instagram DM. Tested end to end against the live account on
+2026-08-24 — contact, opportunity and note all landed, test record deleted afterwards.
+
 ## No contact details anywhere
 This is the biggest hole. There's no phone number, no email, no address and no link in the bio.
 - `app.js` → `SHOP_PHONE` is **empty**, so every booking goes out through the Instagram DM.
@@ -50,10 +55,11 @@ This is the biggest hole. There's no phone number, no email, no address and no l
 - **Star counts.** The FAQ says the count is set by the roof and to send a photo. Vivid's page
   quotes "five to nine hundred"; Slick Stars has never posted a number, so I didn't invent one.
   If he has standard packages, that FAQ answer should become the price list instead.
-- **Tesla specifics.** Teslas are clearly the specialty, but the glass roof on a Model 3/Y makes
-  the layout model-specific and I couldn't tell from the footage how he handles it. The FAQ
-  answer punts to "send the model and a photo" on purpose. Replace it with the real answer — it's
-  the highest-value question on the page for his actual audience.
+- **Roof types.** The FAQ now answers "will it work on my car?" with "the roof decides it, send a
+  photo" and names no brand. That's deliberate — the footage is Tesla-heavy but Ben asked not to
+  present them as the speciality, and I couldn't tell from the clips how the glass roof on a
+  Model 3/Y is actually handled. If there's a real answer for glass roofs it belongs in that FAQ;
+  it's the highest-value question on the page.
 - **Florida heat and humidity.** An obvious local objection for a glued-fiber install in Tampa,
   and a good FAQ answer — but I have no basis for one, so there isn't one on the page.
 

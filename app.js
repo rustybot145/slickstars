@@ -4,7 +4,7 @@
 // The shop's number, in +1XXXXXXXXXX form. Left empty, the booking form
 // copies the request to the clipboard and opens the Instagram DM instead.
 const SHOP_PHONE = "";
-const SHOP_IG = "https://ig.me/m/slickstars_";
+const SHOP_IG = "https://ig.me/m/slickstars_";   // fallback only — the form posts to /api/book first
 // ────────────────────────────────────────────────────────────
 
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -331,10 +331,36 @@ if (form) {
       ...details().map(([, k, v]) => `${k}: ${v}`),
     ].join("\n");
 
-    // Slick Stars has no published number or email yet, so the request is handed
-    // to the customer's own messages or to the Instagram DM. Fill SHOP_PHONE in
-    // and the text route takes over — it arrives from their real number.
     send.classList.add("is-sending");
+    status.textContent = "Sending\u2026";
+
+    /* The real send is into GoHighLevel: it creates the contact, drops an
+       opportunity into New Lead, and attaches the whole answer sheet as a note.
+       Everything below it is a safety net — if the endpoint is down or the site
+       is being served without it, the request still reaches the shop rather
+       than dying on the floor. */
+    try {
+      const r = await fetch("/api/book", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: val("name"),
+          phone: val("phone"),
+          email: val("email"),
+          ig: val("ig"),
+          website: val("website"),
+          vehicle: { year: val("year"), make: val("make"), model: val("model") },
+          rows: details().map(([, k, v]) => [k, v]),
+        }),
+      });
+      if (r.ok) {
+        send.classList.remove("is-sending");
+        status.textContent = "";
+        return lightsOn();
+      }
+    } catch {
+      /* offline, or no endpoint — fall through to the handoff below */
+    }
 
     if (SHOP_PHONE) {
       const sep = /iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?";

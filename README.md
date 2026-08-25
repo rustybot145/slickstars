@@ -38,23 +38,41 @@ than it was right.
 
 ## Where booking requests go
 
-Slick Stars has no published phone number or email — the Instagram bio says "dm for more
-information" and that's the only channel. So the form copies the finished request to the
-clipboard and opens the DM at `ig.me/m/slickstars_`.
+Straight into GoHighLevel. `api/book.js` does three things on submit:
 
-`app.js` starts with:
+1. **Upserts the contact** — name, phone (normalised to E.164, which GHL silently requires),
+   email, tagged `website-booking`, source `Website booking form`. Year, make and model go into
+   the custom fields that already existed in the account.
+2. **Creates an opportunity** in *New Lead 💫* on the Main Pipeline, named
+   `Ben Perez — 2023 Tesla Model Y` so the card is readable without opening it.
+3. **Attaches a note** with the whole answer sheet, grouped: the car, what they want, timing,
+   how to reach them, then their own words verbatim.
+
+The one environment variable to set in Vercel:
+
+| Variable | |
+|---|---|
+| `GHL_api` | **required** — a Private Integration Token created *inside the Slick Stars sub-account* |
+
+Location, pipeline and stage IDs are baked into `api/book.js` with `GHL_LOCATION_ID`,
+`GHL_PIPELINE_ID` and `GHL_STAGE_ID` as overrides. They aren't secrets — without the token they
+do nothing — but they'd need changing if the account is ever rebuilt.
+
+The key lookup takes `GHL_api` first and then falls back to any ghl-ish variable holding
+something shaped like a real token, so a rename doesn't silently break the form.
+
+**If the endpoint fails for any reason the request is never lost** — it falls back to the old
+handoff: a text from the customer's own messages app if `SHOP_PHONE` is set, otherwise the
+request is copied to the clipboard and the Instagram DM opens. That's also what happens on
+`python3 -m http.server`, which has no `/api` route.
+
+`app.js` still starts with:
 
 ```js
 const SHOP_PHONE = "";
 ```
 
-Put the shop's number in there (`+1XXXXXXXXXX`) and the form hands the request to the customer's
-own text app instead, addressed to the shop — they hit send, so it arrives from their real
-number. That's the better route by a distance; the DM is the fallback until there's a number.
-
-There is no server-side piece and no API key to set. If you later want the request emailed
-rather than DM'd, that's a `/api/book` function plus a mail provider — the Vivid Customs build
-has one that ports over directly.
+Filling it in only improves the fallback; the GHL post is the primary path either way.
 
 ## Design
 
