@@ -9,3 +9,6 @@ media/*
 # reference sheet for picking type, not part of the site
 FONT-OPTIONS.png
 preview.html
+
+# stray screenshots dropped in the project folder
+Screenshot*.png
