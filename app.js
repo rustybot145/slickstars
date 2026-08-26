@@ -63,9 +63,29 @@ const seedSky = (host, n) => {
   host.append(frag);
 };
 
+// Shooting stars. Each one runs its own long cycle on its own delay, so they
+// arrive scattered instead of on a beat. Few on purpose — the whole point is
+// that you catch one, not that the sky is busy.
+const seedShooters = (host, n) => {
+  if (!host || reduced) return;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const shot = el("i", { className: "shoot" });
+    shot.style.left = `${(32 + Math.random() * 66).toFixed(1)}%`;  // start right of centre, travel down-left
+    shot.style.top = `${(Math.random() * 52).toFixed(1)}%`;        // and up top, so there's room to fall
+    shot.style.setProperty("--tail", `${(60 + Math.random() * 70).toFixed(0)}px`);
+    shot.style.setProperty("--len", `${(250 + Math.random() * 210).toFixed(0)}px`);
+    shot.style.setProperty("--sd", `${(11 + Math.random() * 10).toFixed(1)}s`);
+    shot.style.setProperty("--sdelay", `${(Math.random() * 18).toFixed(1)}s`);
+    frag.append(shot);
+  }
+  host.append(frag);
+};
+
 // one fixed field behind the whole page; the count follows the viewport so a
 // phone doesn't get a desktop's worth of animated nodes
 seedSky($("#pageSky"), Math.round(Math.min(200, Math.max(45, (innerWidth * innerHeight) / 7600))));
+seedShooters($("#pageSky"), innerWidth < 700 ? 3 : 5);
 
 /* ── hero video ─────────────────────────────────────────── */
 const heroVideos = $$(".hero__video");
@@ -414,6 +434,7 @@ if (form) {
     $(".bookhead").hidden = true;
     done.hidden = false;
     seedSky($("#doneSky"), 120);
+    seedShooters($("#doneSky"), 3);   // the one screen where it should feel like a good omen
     const h = done.querySelector("h2");
     h.tabIndex = -1;
     h.focus({ preventScroll: true });

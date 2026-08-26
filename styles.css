@@ -100,6 +100,33 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.022em}
 @keyframes twinkle{0%,100%{opacity:.06;transform:scale(.6)}50%{opacity:var(--o,.62);transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.sky i{animation:none;opacity:.34}}
 
+/* ── shooting stars ──────────────────────────────────────── */
+/* He sells these, so the sky throws one now and then. Long cycle, short bright
+   window: roughly one every few seconds somewhere on screen, never a shower.
+   `.sky i` is a class+type selector, so these need `.sky .shoot` to win. */
+.sky .shoot{
+  position:absolute;
+  width:2px;height:2px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 6px 0 rgba(228,236,255,.6);
+  opacity:0;
+  animation:shoot var(--sd,14s) var(--sdelay,0s) infinite linear;
+}
+/* the trail, angled to sit behind the direction of travel */
+.sky .shoot::after{
+  content:"";position:absolute;left:1px;top:0;
+  width:var(--tail,120px);height:1px;
+  transform-origin:0 50%;
+  transform:rotate(-32deg);
+  background:linear-gradient(to right,rgba(228,236,255,.55),rgba(228,236,255,.1) 42%,rgba(228,236,255,0));
+}
+@keyframes shoot{
+  0%,4%    {opacity:0;transform:translate3d(0,0,0)}
+  6%,10%   {opacity:.85}
+  13%,100% {opacity:0;transform:translate3d(calc(var(--len,460px) * -.85),calc(var(--len,460px) * .53),0)}
+}
+@media (prefers-reduced-motion:reduce){.sky .shoot{display:none}}
+
 /* ── nav ─────────────────────────────────────────────────── */
 .nav{
   position:fixed;inset:0 0 auto 0;z-index:50;
@@ -184,7 +211,6 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.022em}
 .sec__body{display:flex;flex-direction:column;gap:1.25rem;min-width:0}
 .sec__h2{margin:0;font-size:clamp(2.125rem,4.4vw,3.5rem);line-height:1.1;max-width:20ch}
 .sec__h2 + .lede{margin-top:-.25rem}
-.sec__shot{width:100%;max-width:360px;height:auto;border-radius:3px;margin-top:.5rem}
 
 @media (max-width:780px){
   .sec{grid-template-columns:minmax(0,1fr);gap:1rem}
@@ -346,7 +372,6 @@ h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.022em}
   border-top:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;text-align:center;gap:1rem;
 }
-.closer__shot{width:100%;max-width:300px;height:auto;border-radius:3px;margin-bottom:1rem}
 .closer h2{margin:0;font-size:clamp(2.5rem,6vw,4.5rem);line-height:1.05}
 .closer p{margin:0;color:var(--mute);max-width:44ch;font-size:1.0625rem;line-height:1.7}
 .closer .btn{margin-top:.75rem}
@@ -434,7 +459,16 @@ form:not(.is-quiz) .step{display:grid;gap:22px}
   font:500 11px/1 var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
 }
 .opt-tag{text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;align-items:end;max-width:760px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:18px;align-items:end;max-width:760px}
+
+/* On a phone two 180px columns plus the gutters need ~418px, so the form was
+   running off the side of the screen. One answer per line instead — except the
+   car, where the year is four digits and doesn't need a line to itself. */
+@media (max-width:620px){
+  .row{grid-template-columns:1fr;gap:15px}
+  .row:has(#year){grid-template-columns:minmax(0,86px) minmax(0,1fr);gap:14px}
+  .row:has(#year) > :last-child{grid-column:1/-1}
+}
 
 input[type=text],input[type=tel],input[type=email],input[type=date],textarea{
   width:100%;background:transparent;
