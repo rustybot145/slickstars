@@ -23,6 +23,18 @@ The install cards show an empty `Photo` frame, not an image — waiting on the s
 photo each for starlight headliner, ambient lighting and suede retrim. The README has the
 two-line swap. Reel stills are sitting in `images/services/` as a fallback.
 
+## Suede retrim has been dropped
+It was on the site as a fourth service; Ben removed it. The only suede footage was one clip of
+trim pieces on a driveway, so nothing is lost visually. If he starts offering it again the copy
+is in git history.
+
+## Underglow is now on the site
+Added as the third install card, an FAQ answer about Florida law, and an option on the booking
+form. Backed by his own footage (two underglow clips in the work grid). **The Florida legal answer
+is written from the general shape of the law, not the statute** — same caveat the Vivid build had
+about Arizona. Read the current language and reword it, or cut it back to "we set it up
+street-legal, ask us about your build."
+
 ## The form now posts into GoHighLevel
 `api/book.js` creates the contact and drops an opportunity into *New Lead 💫*. It needs `GHL_api`
 set in Vercel or it falls back to the Instagram DM. Tested end to end against the live account on

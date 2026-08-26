@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Book your install — Slick Stars, Tampa FL</title>
-<meta name="description" content="Tell Slick Stars what you're driving and what you want lit. Five questions, then a real number back — usually the same day.">
-<meta name="theme-color" content="#000000">
+<meta name="description" content="Tell Slick Stars what you're driving and what you want lit. Six screens, about a minute, and you'll see the whole request before anything sends.">
+<meta name="theme-color" content="#050505">
 <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,8 +15,7 @@
 </head>
 <body>
 
-<div class="sky sky--page" id="pageSky" aria-hidden="true"></div>
-
+<div class="sky" id="pageSky" aria-hidden="true"></div>
 <a class="skip" href="#wiz">Skip to the form</a>
 
 <header class="nav" id="nav" data-stuck="true">
@@ -26,128 +25,137 @@
   <nav class="nav__links" aria-label="Sections">
     <a href="index.html#install">Install</a>
     <a href="index.html#work">Work</a>
-    <a href="index.html#faq">FAQ</a>
+    <a href="index.html#faq">Questions</a>
   </nav>
   <a class="btn btn--sm btn--ghost" href="index.html">Back to the site</a>
 </header>
 
-<main>
+<div class="bookhead">
+  <p class="eyebrow">Book an install</p>
+  <h1>Tell us what<br>you're <i>driving</i></h1>
+  <p class="lede">
+    Six screens, about a minute. One question at a time, and you'll see the whole request laid
+    out before anything sends &mdash; the more you fill in, the closer the number comes back to final.
+  </p>
+</div>
 
-<header class="bookhead">
-  <p class="eyebrow">Tampa, Florida</p>
-  <h1>Book your install</h1>
-  <p>Five questions about the car and the roof. Nothing gets sent until you've seen the whole thing on one screen.</p>
-</header>
+<main class="book">
+  <form class="form" id="bookForm" novalidate>
 
-<section class="wiz" id="wiz">
+    <div class="wiz" id="wiz">
+      <div class="wiz__track"><i class="wiz__fill" id="wizFill"></i></div>
+      <p class="wiz__count" id="wizCount" role="status">Step 1 of 6</p>
+    </div>
 
-  <div class="wiz__bar">
-    <span class="wiz__track"><span class="wiz__fill" id="wizFill"></span></span>
-    <span class="wiz__count" id="wizCount">Step 1 of 6</span>
-  </div>
+    <!-- 01 ─────────────────────────────────────────── -->
+    <fieldset class="step">
+      <div class="step__head"><span class="step__n">01</span><h2>What are we installing?</h2></div>
+      <p class="step__hint">Pick everything you're interested in. Not sure yet is a fine answer.</p>
+      <div class="tiles">
+        <input type="checkbox" id="s1" name="service" value="Starlight headliner" checked>
+        <label for="s1"><b>Starlight headliner</b><span>Fiber-optic stars set into the roof lining</span></label>
 
-  <form id="bookForm" novalidate>
+        <input type="checkbox" id="s2" name="service" value="Ambient lighting">
+        <label for="s2"><b>Ambient lighting</b><span>Dash, doors, pillars and footwells</span></label>
 
-    <!-- 01 ─ what -->
-    <section class="step">
-      <h2>What are we installing?</h2>
-      <p class="step__sub">Pick everything you're interested in. You can change your mind when we talk.</p>
+        <input type="checkbox" id="s3" name="service" value="Underglow">
+        <label for="s3"><b>Underglow</b><span>Rockers, wheel wells and grille</span></label>
 
-      <fieldset class="field">
-        <legend>The install</legend>
-        <div class="opts">
-          <label class="opt"><input type="checkbox" name="service" value="Starlight headliner" checked><span>Starlight headliner<small>Fiber optic in the roof</small></span></label>
-          <label class="opt"><input type="checkbox" name="service" value="Ambient lighting"><span>Ambient lighting<small>Dash, doors, footwells</small></span></label>
-          <label class="opt"><input type="checkbox" name="service" value="Suede retrim"><span>Suede retrim<small>Headliner and pillars</small></span></label>
-          <label class="opt"><input type="checkbox" name="service" value="Not sure yet"><span>Not sure yet<small>Talk me through it</small></span></label>
-        </div>
-      </fieldset>
-    </section>
+        <input type="checkbox" id="s5" name="service" value="Not sure yet">
+        <label for="s5"><b>Not sure yet</b><span>Talk me through what works on my car</span></label>
+      </div>
+    </fieldset>
 
-    <!-- 02 ─ the car -->
-    <section class="step">
-      <h2>The car</h2>
-      <p class="step__sub">The roof decides most of the job, so this is the part that matters.</p>
+    <!-- 02 ─────────────────────────────────────────── -->
+    <fieldset class="step">
+      <div class="step__head"><span class="step__n">02</span><h2>The car</h2></div>
+      <p class="step__hint">The roof decides most of the job, so this is the part that matters.</p>
 
-      <div class="field">
-        <label for="year">Year, make and model</label>
-        <div class="grid2">
+      <div class="row">
+        <div class="field">
+          <label for="year">Year</label>
           <input type="text" id="year" inputmode="numeric" placeholder="2023" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="make">Make</label>
           <input type="text" id="make" placeholder="BMW" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="model">Model</label>
           <input type="text" id="model" placeholder="M3" autocomplete="off">
         </div>
       </div>
 
-      <fieldset class="field">
-        <legend>What's above your head</legend>
-        <div class="opts">
-          <label class="opt"><input type="radio" name="roof" value="Solid roof" checked><span>Solid roof</span></label>
-          <label class="opt"><input type="radio" name="roof" value="Sunroof"><span>Sunroof</span></label>
-          <label class="opt"><input type="radio" name="roof" value="Panoramic or glass"><span>Panoramic / glass</span></label>
+      <div class="field">
+        <label as="legend">What's above your head</label>
+        <div class="chips">
+          <input type="radio" id="r1" name="roof" value="Solid roof" checked><label for="r1">Solid roof</label>
+          <input type="radio" id="r2" name="roof" value="Sunroof"><label for="r2">Sunroof</label>
+          <input type="radio" id="r3" name="roof" value="Panoramic or glass"><label for="r3">Panoramic / glass</label>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="field">
-        <legend>Headliner color right now</legend>
-        <div class="opts">
-          <label class="opt"><input type="radio" name="liner" value="Black" checked><span>Black</span></label>
-          <label class="opt"><input type="radio" name="liner" value="Gray or beige"><span>Gray or beige</span></label>
-          <label class="opt"><input type="radio" name="liner" value="Already suede"><span>Already suede</span></label>
+      <div class="field">
+        <label>Headliner color right now</label>
+        <div class="chips">
+          <input type="radio" id="l1" name="liner" value="Black" checked><label for="l1">Black</label>
+          <input type="radio" id="l2" name="liner" value="Gray or beige"><label for="l2">Gray or beige</label>
+          <input type="radio" id="l3" name="liner" value="Already dark suede"><label for="l3">Already suede</label>
         </div>
-        <p class="hint">Light headliners wash the stars out. If yours is gray, ask us about the suede retrim.</p>
-      </fieldset>
-    </section>
+        <p class="hint">Light headliners wash the stars out &mdash; mention it and we’ll tell you what that means for your roof.</p>
+      </div>
+    </fieldset>
 
-    <!-- 03 ─ the ceiling -->
-    <section class="step">
-      <h2>The ceiling</h2>
-      <p class="step__sub">Roughly how busy you want it. We'll give you the real point count once we've seen the roof.</p>
+    <!-- 03 ─────────────────────────────────────────── -->
+    <fieldset class="step">
+      <div class="step__head"><span class="step__n">03</span><h2>How you want it</h2></div>
+      <p class="step__hint">Roughly how busy. We'll give you the real point count once we've seen the roof.</p>
 
-      <fieldset class="field">
-        <legend>How full</legend>
-        <div class="opts">
-          <label class="opt"><input type="radio" name="density" value="Light scatter"><span>Light scatter<small>Subtle, factory-looking</small></span></label>
-          <label class="opt"><input type="radio" name="density" value="Full ceiling" checked><span>Full ceiling<small>What most people want</small></span></label>
-          <label class="opt"><input type="radio" name="density" value="Packed"><span>Packed<small>As many as the roof takes</small></span></label>
+      <div class="field">
+        <label>How full</label>
+        <div class="chips">
+          <input type="radio" id="d1" name="density" value="Light scatter"><label for="d1">Light scatter</label>
+          <input type="radio" id="d2" name="density" value="Full ceiling" checked><label for="d2">Full ceiling</label>
+          <input type="radio" id="d3" name="density" value="Packed"><label for="d3">Packed</label>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="field">
-        <legend>Color</legend>
-        <div class="opts">
-          <label class="opt"><input type="radio" name="color" value="White only"><span>White only</span></label>
-          <label class="opt"><input type="radio" name="color" value="Color change" checked><span>Color change</span></label>
-          <label class="opt"><input type="radio" name="color" value="Match my ambient"><span>Match my ambient</span></label>
+      <div class="field">
+        <label>Color</label>
+        <div class="chips">
+          <input type="radio" id="c1" name="color" value="White only"><label for="c1">White only</label>
+          <input type="radio" id="c2" name="color" value="Color change" checked><label for="c2">Color change</label>
+          <input type="radio" id="c3" name="color" value="Match my ambient"><label for="c3">Match my ambient</label>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset class="field">
-        <legend>Extras</legend>
-        <div class="opts">
-          <label class="opt"><input type="checkbox" name="extra" value="Shooting stars"><span>Shooting stars</span></label>
-          <label class="opt"><input type="checkbox" name="extra" value="Twinkle"><span>Twinkle</span></label>
-          <label class="opt"><input type="checkbox" name="extra" value="Rear row too"><span>Rear row too</span></label>
-          <label class="opt"><input type="checkbox" name="extra" value="Visors and pillars"><span>Visors &amp; pillars</span></label>
+      <div class="field">
+        <label>Extras</label>
+        <div class="chips">
+          <input type="checkbox" id="e1" name="extra" value="Shooting stars"><label for="e1">Shooting stars</label>
+          <input type="checkbox" id="e2" name="extra" value="Twinkle"><label for="e2">Twinkle</label>
+          <input type="checkbox" id="e3" name="extra" value="Rear row too"><label for="e3">Rear row too</label>
+          <input type="checkbox" id="e4" name="extra" value="Visors and pillars"><label for="e4">Visors &amp; pillars</label>
+          <input type="checkbox" id="e5" name="extra" value="Logo or name in the roof"><label for="e5">Logo or name in the roof</label>
         </div>
-      </fieldset>
-    </section>
+        <p class="hint">We can pick a logo or a name out of the stars &mdash; there's one in the work section.</p>
+      </div>
+    </fieldset>
 
-    <!-- 04 ─ timing -->
-    <section class="step">
-      <h2>When can we have it?</h2>
-      <p class="step__sub">These are the days actually open on the calendar &mdash; pick one and we'll hold it for you.</p>
+    <!-- 04 ─────────────────────────────────────────── -->
+    <fieldset class="step">
+      <div class="step__head"><span class="step__n">04</span><h2>When can we have it?</h2></div>
+      <p class="step__hint">These are the days actually open on the calendar &mdash; pick one and we'll hold it.</p>
 
       <div class="field" id="slotField">
         <label>Pick a day</label>
         <div class="slots" id="slotDays" role="group" aria-label="Available days">
           <p class="slots__msg">Checking the calendar&hellip;</p>
         </div>
-
         <div id="slotTimesWrap" hidden>
           <label style="margin-top:28px">Pick a time</label>
           <div class="slots slots--times" id="slotTimes" role="group" aria-label="Available times"></div>
         </div>
-
         <p class="hint" id="slotHint"></p>
       </div>
 
@@ -157,52 +165,52 @@
         <p class="hint">We'll confirm an exact time when we come back to you.</p>
       </div>
 
-      <fieldset class="field">
-        <legend>How tight is that</legend>
-        <div class="opts">
-          <label class="opt"><input type="radio" name="flex" value="That week is fine" checked><span>That week is fine</span></label>
-          <label class="opt"><input type="radio" name="flex" value="Totally flexible"><span>Totally flexible</span></label>
-          <label class="opt"><input type="radio" name="flex" value="Has to be that day"><span>Has to be that day</span></label>
+      <div class="field">
+        <label>How tight is that</label>
+        <div class="chips">
+          <input type="radio" id="f1" name="flex" value="That week is fine" checked><label for="f1">That week is fine</label>
+          <input type="radio" id="f2" name="flex" value="Totally flexible"><label for="f2">Totally flexible</label>
+          <input type="radio" id="f3" name="flex" value="Has to be that day"><label for="f3">Has to be that day</label>
         </div>
-      </fieldset>
-    </section>
+      </div>
+    </fieldset>
 
-    <!-- 05 ─ you -->
-    <section class="step">
-      <h2>How do we reach you?</h2>
-      <p class="step__sub">A number or an Instagram handle — whichever you actually check.</p>
+    <!-- 05 ─────────────────────────────────────────── -->
+    <fieldset class="step">
+      <div class="step__head"><span class="step__n">05</span><h2>How do we reach you?</h2></div>
+      <p class="step__hint">A number or an Instagram handle &mdash; whichever you actually check.</p>
 
-      <div class="field" style="max-width:420px">
-        <label for="name">Your name</label>
-        <input type="text" id="name" autocomplete="name" placeholder="First name is fine">
+      <div class="row">
+        <div class="field">
+          <label for="name">Your name</label>
+          <input type="text" id="name" autocomplete="name" placeholder="First name is fine">
+        </div>
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" autocomplete="tel" placeholder="(813) 555-0142">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="ig">Instagram</label>
+          <input type="text" id="ig" placeholder="@yourhandle" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="email">Email <span class="opt-tag">optional</span></label>
+          <input type="email" id="email" autocomplete="email" placeholder="you@email.com">
+        </div>
       </div>
 
       <div class="field">
-        <div class="grid2">
-          <div>
-            <label for="phone">Phone</label>
-            <input type="tel" id="phone" autocomplete="tel" placeholder="(813) 555-0142">
-          </div>
-          <div>
-            <label for="ig">Instagram</label>
-            <input type="text" id="ig" placeholder="@yourhandle" autocomplete="off">
-          </div>
-          <div>
-            <label for="email">Email <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
-            <input type="email" id="email" autocomplete="email" placeholder="you@email.com">
-          </div>
+        <label>How did you find us</label>
+        <div class="chips">
+          <input type="radio" id="g1" name="found" value="Instagram" checked><label for="g1">Instagram</label>
+          <input type="radio" id="g2" name="found" value="Google"><label for="g2">Google</label>
+          <input type="radio" id="g3" name="found" value="Word of mouth"><label for="g3">Word of mouth</label>
+          <input type="radio" id="g4" name="found" value="Saw a car"><label for="g4">Saw a car</label>
         </div>
       </div>
-
-      <fieldset class="field">
-        <legend>How did you find us</legend>
-        <div class="opts">
-          <label class="opt"><input type="radio" name="found" value="Instagram" checked><span>Instagram</span></label>
-          <label class="opt"><input type="radio" name="found" value="Google"><span>Google</span></label>
-          <label class="opt"><input type="radio" name="found" value="Word of mouth"><span>Word of mouth</span></label>
-          <label class="opt"><input type="radio" name="found" value="Saw a car"><span>Saw a car</span></label>
-        </div>
-      </fieldset>
 
       <div class="field">
         <label for="notes">Anything else</label>
@@ -213,14 +221,15 @@
         <label for="website">Leave this empty</label>
         <input type="text" id="website" tabindex="-1" autocomplete="off">
       </div>
-    </section>
+    </fieldset>
 
-    <!-- 06 ─ review -->
-    <section class="step">
-      <h2>Check it over</h2>
-      <p class="step__sub">This is exactly what gets sent. Fix anything that's off before it goes.</p>
+    <!-- 06 ─────────────────────────────────────────── -->
+    <fieldset class="step">
+      <div class="step__head"><span class="step__n">06</span><h2>Check it over</h2></div>
+      <p class="step__hint">This is exactly what gets sent. Fix anything that's off before it goes.</p>
       <dl class="review" id="reviewOut"></dl>
-    </section>
+      <p class="hint">Nothing is stored on this page. Your slot is held the moment it sends, and no deposit is taken until you've seen the price.</p>
+    </fieldset>
 
     <div class="wiz__nav">
       <button class="btn btn--ghost" type="button" id="wizBack" hidden>Back</button>
@@ -235,13 +244,10 @@
     <div class="sky" id="doneSky" aria-hidden="true"></div>
     <div class="done__in">
       <h2>That's with us</h2>
-      <p>We'll come back with a real number and a day that works. If the DM didn't open, we're at <a href="https://www.instagram.com/slickstars_/" target="_blank" rel="noopener">@slickstars_</a>.</p>
+      <p>We'll come back with a real number and confirm the day. If the DM didn't open, we're at <a href="https://www.instagram.com/slickstars_/" target="_blank" rel="noopener">@slickstars_</a>.</p>
       <a class="btn btn--ghost" href="index.html">Back to the work</a>
     </div>
   </section>
-
-</section>
-
 </main>
 
 <footer class="foot">
@@ -254,7 +260,7 @@
     <a href="index.html#work">Work</a>
     <a href="https://www.instagram.com/slickstars_/" target="_blank" rel="noopener">Instagram</a>
   </nav>
-  <p class="foot__fine">&copy; <span id="yr">2026</span> Slick Stars. Starlight headliners, ambient lighting and suede retrims, Tampa FL.</p>
+  <p class="foot__fine">&copy; <span id="yr">2026</span> Slick Stars. Starlight headliners, ambient lighting and underglow, Tampa FL.</p>
 </footer>
 
 <script src="app.js"></script>

@@ -4,6 +4,11 @@ media/*
 !media/build.sh
 !media/manifest.txt
 !media/dev-server.js
+!media/build-v3.sh
+!media/hero-cut.sh
+!media/photos.sh
+!media/rowclips.sh
+!media/images.sh
 
 .DS_Store
 
@@ -13,3 +18,14 @@ preview.html
 
 # stray screenshots dropped in the project folder
 Screenshot*.png
+
+# raw camera media dropped in the project root — huge, and the derived
+# clips in video/ and images/ are what actually ship
+/*.MOV
+/*.mov
+/*.heic
+/*.HEIC
+/*.jpeg
+
+# logo exports made for him to hand around — not site assets
+Slick Stars logo*.png

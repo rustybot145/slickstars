@@ -1,7 +1,7 @@
 # Slick Stars
 
 Marketing site for [Slick Stars](https://www.instagram.com/slickstars_/) — fiber-optic starlight
-headliners, ambient interior lighting and suede retrims, out of Tampa, Florida.
+headliners, ambient interior lighting, underglow and suede retrims, out of Tampa, Florida.
 
 Static site. No build step, no dependencies:
 
@@ -24,17 +24,19 @@ cd "~/Desktop/Slick Stars website" && python3 -m http.server 4188
 
 ## Where the media came from
 
-Everything on the page is Slick Stars' own footage. The twelve reels on `@slickstars_` were
-pulled with `yt-dlp`, then re-encoded down from 1080×1920 to 720×1280 for the grid. The whole
-`video/` folder is 23MB.
+Two sources. The **work grid is mostly Instagram** — nine of the twelve clips are the shop's own
+reels, kept at their native 9:16 so they read like stories. The other three, plus everything in
+the hero and the install cards, come from **the shop's camera roll**, most of it shot in 4K.
 
-`media/build.sh` rebuilds every clip and poster from `media/raw/` using `media/manifest.txt`
-(`shortcode|slug|poster timestamp`). Change a timestamp there and re-run it to move a poster
-frame. `media/raw/` holds the untouched originals.
+`media/build.sh` rebuilds the Instagram clips from `media/raw/` via `media/manifest.txt`
+(`shortcode | slug | poster timestamp`). `media/build-v3.sh` rebuilds everything else from the
+raw camera files, driven by inline tables of `source | slug | start | duration | poster time`.
 
-Poster frames were picked by hand, one clip at a time — a starlight reel spends half its
-runtime on someone's face or a garage shelf, and the auto-picked frame was wrong more often
-than it was right.
+The raw camera files are gitignored — ~380MB, and everything that ships is derived from them.
+Keep the originals somewhere safe outside the repo.
+
+Install-card photos are generated at **exactly 16:9, matching their 4K sources**, so the full
+frame shows and nothing is cropped away. Poster frames were picked by hand, one clip at a time.
 
 ## Booking: real slots, no double bookings
 
@@ -108,7 +110,16 @@ size.
 
 **Instrument Sans** carries body copy, labels and every control.
 
-The hero borrows its text layout from the Vivid Customs build: one left-aligned column, centered
+The booking page borrows its whole structure from the Vivid Customs build: numbered step heads,
+full-width tiles with a description under each option, inline chips for the short answers, and a
+progress track above. It keeps Slick Stars' own type and palette rather than importing Vivid's
+serif and blue, and it keeps the live calendar picker.
+
+The hero is **split in two** — the red ambient cabin on the left, the violet star ceiling on the
+right, one hairline seam down the middle. The scrim is weighted left so the type reads over the
+busier of the two. Below 760px the second pane drops and the first goes full-bleed.
+
+Its text layout comes from the same build: one left-aligned column, centered
 in the viewport, with even 1.5rem gaps — locator, two-line headline with the second line italic,
 one paragraph, two buttons (solid and ghost). Nothing is pinned to a corner and nothing runs in a
 second column.

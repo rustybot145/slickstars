@@ -68,62 +68,92 @@ const seedSky = (host, n) => {
 seedSky($("#pageSky"), Math.round(Math.min(200, Math.max(45, (innerWidth * innerHeight) / 7600))));
 
 /* ── hero video ─────────────────────────────────────────── */
-const heroVideo = $(".hero__video");
-if (heroVideo && !reduced) {
+const heroVideos = $$(".hero__video");
+if (heroVideos.length && !reduced) {
   // Safari checks these as properties, not only attributes, before it will autoplay
-  heroVideo.muted = true;
-  heroVideo.playsInline = true;
+  heroVideos.forEach((v) => { v.muted = true; v.playsInline = true; });
 
-  const roll = () => heroVideo.play().catch(() => {});
-  new IntersectionObserver(([e]) => (e.isIntersecting ? roll() : heroVideo.pause()), { threshold: 0 }).observe(heroVideo);
-  ["loadedmetadata", "canplay"].forEach((e) => heroVideo.addEventListener(e, roll, { once: true }));
+  const roll = () => heroVideos.forEach((v) => v.play().catch(() => {}));
+  new IntersectionObserver(
+    ([e]) => (e.isIntersecting ? roll() : heroVideos.forEach((v) => v.pause())),
+    { threshold: 0 }
+  ).observe(heroVideos[0]);
+  heroVideos.forEach((v) => ["loadedmetadata", "canplay"].forEach((e) => v.addEventListener(e, roll, { once: true })));
   addEventListener("pageshow", roll);
   document.addEventListener("visibilitychange", () => document.hidden || roll());
   // Low Power Mode refuses autoplay whatever the page does — first touch counts as consent
   ["pointerdown", "touchstart"].forEach((e) => addEventListener(e, roll, { once: true, passive: true }));
   roll();
-} else if (heroVideo) {
-  heroVideo.removeAttribute("autoplay");
-  heroVideo.load(); // leaves the poster frame up
+} else {
+  $$(".hero__video").forEach((v) => { v.removeAttribute("autoplay"); v.load(); }); // leaves the poster up
 }
 
 /* ── the work grid ──────────────────────────────────────── */
 /* [file, title, spec, alt] — every clip is the shop's own, straight off @slickstars_ */
 const WORK = [
   ["tesla-night", "Tesla", "Starlight roof · ambient lines",
-   "Tesla cabin at night, the whole ceiling filled with cyan and white points and a lit line running behind the seats"],
+   "Tesla cabin at night, the ceiling filled with cyan and white points and a lit line behind the seats"],
+  ["custom-logo", "A logo in the roof", "Spelled out in fiber",
+   "A star ceiling in violet with a custom logo picked out in brighter points among the stars"],
   ["cadillac-spectrum", "Cadillac", "Full-spectrum dash and doors",
-   "Cadillac cabin at night with a full-spectrum ambient line across the dash and down the door card, white leather either side"],
+   "Cadillac cabin at night with a full-spectrum ambient line across the dash and down the door card"],
+  ["underglow", "Underglow", "Full spectrum, wheel to wheel",
+   "A car at night with full-spectrum underglow washing color across the road beneath it"],
   ["bench-test", "Bench test", "Lit before it goes back in",
-   "A headliner off the car on stands, packed edge to edge with white points, a shooting star crossing the middle"],
+   "A headliner off the car on stands, packed edge to edge with white points and a shooting star"],
+  ["red-cabin", "Red leather build", "Ambient lines, dash to doors",
+   "A cabin with red leather seats at night, ambient lines running the dash and both door cards"],
   ["tesla-fiber", "Tesla headliner", "Every strand pulled by hand",
-   "A Tesla headliner face down on a bench with hundreds of loose fiber-optic strands pulled through the back"],
+   "A Tesla headliner face down on a bench with hundreds of loose fiber-optic strands pulled through"],
   ["night-spectrum", "Night scene", "Stars over a spectrum line",
-   "Car interior at night, star ceiling above and a rainbow ambient line running along the windscreen header"],
-  ["kia-ambient", "Kia", "Ambient dash, doors, footwells",
-   "Kia cabin in daylight with a rainbow ambient line running across the dash and around the door cards"],
-  ["panel-lit", "Sunroof headliner", "Points laid around the cutout",
-   "A headliner with a sunroof cutout, off the car and lit up, points spread evenly around the opening"],
+   "Car interior at night, star ceiling above and a spectrum ambient line along the windscreen header"],
   ["honda-stars", "Honda", "Multicolor roof, sunroof cutout",
    "Honda cabin with a multicolor star ceiling arcing around the sunroof, dashboard lit red below"],
-  ["back-of-headliner", "Back of the headliner", "Where the fiber actually lives",
-   "The reverse of a headliner in daylight, showing every strand glued down and routed back to a single point"],
-  ["tesla-suede", "Tesla trim", "Headliner and pillars in black suede",
-   "Tesla headliner surround and pillar trims retrimmed in black suede, laid out on the driveway next to the car"],
-  ["daylight-stars", "Daylight", "What it looks like at noon",
-   "A star ceiling seen in daylight through an open garage door, points still clearly lit across the roof"],
+  ["panel-lit", "Sunroof headliner", "Points laid around the cutout",
+   "A headliner with a sunroof cutout, off the car and lit, points spread evenly around the opening"],
   ["cadillac-ambient", "Cadillac", "One color across every zone",
-   "Cadillac cabin washed green by the ambient lighting, the line running the length of the dash and door"],
+   "Cadillac cabin washed green by the ambient lighting, the line running the length of the dash"],
+  ["daylight-stars", "Star roof", "Still lit at noon",
+   "A star ceiling seen in daylight through an open garage door, points still clearly lit"],
 ];
+
+/* ── clips that start themselves once they're on screen ─── */
+/* preload:"none" means nothing downloads until you scroll to it, and pausing on
+   the way out stops a phone decoding every clip on the page at once. Observe
+   either a video, or a wrapper carrying the video on _vid. */
+const inViewPlayer = reduced
+  ? null
+  : new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          const vid = e.target._vid || e.target;
+          if (e.isIntersecting) {
+            e.target.dataset.playing = "true";
+            vid.play().catch(() => {});         // the poster still shows if autoplay is refused
+          } else {
+            vid.pause();                         // keep what's buffered, stop the decode
+          }
+        }),
+      { rootMargin: "150px 0px", threshold: 0.01 }
+    );
+const playInView = (node) => inViewPlayer && inViewPlayer.observe(node);
+
+// the two install rows he wanted moving rather than still
+$$(".rowitem__shot video, video.rowitem__shot").forEach((v) => {
+  v.muted = true;                                // Safari checks the property, not the attribute
+  v.playsInline = true;
+  playInView(v);
+});
 
 const grid = $("#work-grid");
 if (grid) {
+
   const lb = $("#lb"), lbVideo = $("#lbVideo"), lbCap = $("#lbCap");
 
   WORK.forEach(([file, title, spec, alt]) => {
     const fig = el("figure", { className: "tile" });
 
-    // the still is what the grid reads as; the clip only loads if you ask for it
+    // the still covers the gap until the clip has frames to show
     fig.append(
       el("img", {
         src: `video/work/${file}.jpg`,
@@ -135,28 +165,21 @@ if (grid) {
 
     const vid = el("video", {
       src: `video/work/${file}.mp4`,
+      poster: `video/work/${file}.jpg`,
       width: 720, height: 1280,
       muted: true, loop: true, playsInline: true, preload: "none",
       ariaHidden: "true", tabIndex: -1,
     });
+    // Safari checks these as properties, not attributes, before it will autoplay
+    vid.muted = true;
+    vid.playsInline = true;
     fig.append(vid);
 
-    // hover previews on a pointer; a tap goes straight to the lightbox instead
-    if (!reduced && matchMedia("(hover:hover)").matches) {
-      const start = () => {
-        fig.dataset.playing = "true";
-        vid.play().catch(() => {});
-      };
-      const stop = () => {
-        fig.dataset.playing = "false";
-        vid.pause();
-        vid.load(); // back to a clean poster rather than a frozen frame
-      };
-      fig.addEventListener("pointerenter", start);
-      fig.addEventListener("pointerleave", stop);
-      fig.addEventListener("focusin", start);
-      fig.addEventListener("focusout", stop);
-    }
+    // The grid plays itself, the way his feed does. preload:"none" means the
+    // download only starts when a tile comes into view, and pausing on the way
+    // out keeps a phone from decoding twelve clips at once.
+    fig._vid = vid;
+    playInView(fig);
 
     fig.insertAdjacentHTML(
       "beforeend",
